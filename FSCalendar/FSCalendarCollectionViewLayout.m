@@ -457,7 +457,11 @@
 // Separators
 - (UICollectionViewLayoutAttributes *)layoutAttributesForDecorationViewOfKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath
 {
-    if ([elementKind isEqualToString:kFSCalendarSeparatorInterRows] && (self.separators & FSCalendarSeparatorInterRows)) {
+    if ([elementKind isEqualToString:kFSCalendarSeparatorInterRows] &&
+        ((self.separators & FSCalendarSeparatorInterRows) ||
+         ((self.separators & FSCalendarSeparatorInterCurrentMonthRows) &&
+          [self.calendar.calculator monthPositionForIndexPath:indexPath] == FSCalendarMonthPositionCurrent))) {
+        
         UICollectionViewLayoutAttributes *attributes = self.rowSeparatorAttributes[indexPath];
         if (!attributes) {
             FSCalendarCoordinate coordinate = [self.calendar.calculator coordinateForIndexPath:indexPath];
@@ -485,7 +489,10 @@
                 x = 0;
                 y = self.sectionTops[indexPath.section] + self.headerReferenceSize.height + self.tops[coordinate.row] + self.heights[coordinate.row];
             }
-            CGFloat width = self.collectionView.fs_width;
+            
+            UICollectionViewLayoutAttributes *itemAttributes = self.itemAttributes[indexPath];
+            CGFloat width = CGRectGetWidth(itemAttributes.frame);
+            
             CGFloat height = FSCalendarStandardSeparatorThickness;
             attributes.frame = CGRectMake(x, y, width, height);
             attributes.zIndex = NSIntegerMax;

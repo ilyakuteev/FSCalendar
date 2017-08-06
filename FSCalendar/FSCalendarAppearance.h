@@ -23,8 +23,9 @@ typedef NS_ENUM(NSInteger, FSCalendarCellState) {
 };
 
 typedef NS_ENUM(NSUInteger, FSCalendarSeparators) {
-    FSCalendarSeparatorNone          = 0,
-    FSCalendarSeparatorInterRows     = 1
+    FSCalendarSeparatorNone                      = 0,
+    FSCalendarSeparatorInterRows                 = 1,
+    FSCalendarSeparatorInterCurrentMonthRows     = 2
 };
 
 typedef NS_OPTIONS(NSUInteger, FSCalendarCaseOptions) {
