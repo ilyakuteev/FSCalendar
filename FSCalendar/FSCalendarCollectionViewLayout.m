@@ -458,9 +458,15 @@
 - (UICollectionViewLayoutAttributes *)layoutAttributesForDecorationViewOfKind:(NSString *)elementKind atIndexPath:(NSIndexPath *)indexPath
 {
     if ([elementKind isEqualToString:kFSCalendarSeparatorInterRows] &&
-        ((self.separators & FSCalendarSeparatorInterRows) ||
-         ((self.separators & FSCalendarSeparatorInterCurrentMonthRows) &&
-          [self.calendar.calculator monthPositionForIndexPath:indexPath] == FSCalendarMonthPositionCurrent))) {
+        ((self.separators & FSCalendarSeparatorInterRows) || (self.separators & FSCalendarSeparatorInterCurrentMonthRows))) {
+        
+        if (self.separators & FSCalendarSeparatorInterCurrentMonthRows) {
+            NSIndexPath *indexPathForPrevSection = [NSIndexPath indexPathForItem:indexPath.item+7 inSection:indexPath.section];
+            if (!([self.calendar.calculator monthPositionForIndexPath:indexPath] == FSCalendarMonthPositionCurrent &&
+                  [self.calendar.calculator monthPositionForIndexPath:indexPathForPrevSection] == FSCalendarMonthPositionCurrent)) {
+                return nil;
+            }
+        }
         
         UICollectionViewLayoutAttributes *attributes = self.rowSeparatorAttributes[indexPath];
         if (!attributes) {
