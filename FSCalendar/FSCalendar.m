@@ -319,7 +319,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
             _contentView.frame = self.bounds;
         }
 
-        CGFloat headerHeight = self.preferredHeaderHeight;
+        CGFloat headerHeight = 0;self.preferredHeaderHeight;
         CGFloat weekdayHeight = self.preferredWeekdayHeight;
         CGFloat rowHeight = self.preferredRowHeight;
         CGFloat padding = 5;
@@ -487,7 +487,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
 
 - (UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath
 {
-    if (self.floatingMode) {
+    //if (self.floatingMode) {
         if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
             FSCalendarStickyHeader *stickyHeader = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"header" forIndexPath:indexPath];
             stickyHeader.calendar = self;
@@ -496,7 +496,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
             [stickyHeader setNeedsLayout];
             return stickyHeader;
         }
-    }
+    //}
     return [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"placeholderHeader" forIndexPath:indexPath];
 }
 

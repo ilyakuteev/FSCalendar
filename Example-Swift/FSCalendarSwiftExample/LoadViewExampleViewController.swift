@@ -22,6 +22,7 @@ class LoadViewExampleViewController: UIViewController, FSCalendarDataSource, FSC
         let calendar = FSCalendar(frame: CGRect(x: 0, y: self.navigationController!.navigationBar.frame.maxY, width: self.view.bounds.width, height: height))
         calendar.dataSource = self
         calendar.delegate = self
+        calendar.appearance.separators = .interCurrentMonthRows
         calendar.backgroundColor = UIColor.white
         self.view.addSubview(calendar)
         self.calendar = calendar
