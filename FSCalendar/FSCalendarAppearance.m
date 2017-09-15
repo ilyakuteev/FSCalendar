@@ -36,8 +36,9 @@
         _headerTitleFont = [UIFont systemFontOfSize:FSCalendarStandardHeaderTextSize];
         
         _headerTitleColor = FSCalendarStandardTitleTextColor;
-        _headerDateFormat = @"MMMM yyyy";
-        _headerMinimumDissolvedAlpha = 0.2;
+        _headerDateFormatMonthView = @"MMMM yyyy";
+        _headerDateFormatWeekView = @"EEEE dd MMMM yyyy";
+        _headerMinimumDissolvedAlpha = 0; // A.Tsyganov befor 0.2
         _weekdayTextColor = FSCalendarStandardTitleTextColor;
         _caseOptions = FSCalendarCaseOptionsHeaderUsesDefaultCase|FSCalendarCaseOptionsWeekdayUsesDefaultCase;
         
@@ -410,10 +411,18 @@
     }
 }
 
-- (void)setHeaderDateFormat:(NSString *)headerDateFormat
+- (void)setHeaderDateFormatForMonthView:(NSString *)headerDateFormat
 {
-    if (![_headerDateFormat isEqual:headerDateFormat]) {
-        _headerDateFormat = headerDateFormat;
+    if (![_headerDateFormatMonthView isEqual:headerDateFormat]) {
+        _headerDateFormatMonthView = headerDateFormat;
+        [self.calendar configureAppearance];
+    }
+}
+
+- (void)setHeaderDateFormatForWeekView:(NSString *)headerDateFormat
+{
+    if (![_headerDateFormatWeekView isEqual:headerDateFormat]) {
+        _headerDateFormatWeekView = headerDateFormat;
         [self.calendar configureAppearance];
     }
 }

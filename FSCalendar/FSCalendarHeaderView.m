@@ -62,6 +62,18 @@
     [self addSubview:collectionView];
     [collectionView registerClass:[FSCalendarHeaderCell class] forCellWithReuseIdentifier:@"cell"];
     self.collectionView = collectionView;
+    
+    UILabel *lbl = [UILabel new];
+    [lbl setUserInteractionEnabled:false];
+    lbl.hidden = true;
+    lbl.textAlignment = NSTextAlignmentCenter;
+    lbl.lineBreakMode = NSLineBreakByWordWrapping;
+    lbl.numberOfLines = 1;
+    lbl.minimumFontSize = 12;
+    lbl.adjustsFontSizeToFitWidth = YES;
+    lbl.backgroundColor = [UIColor whiteColor];
+    [self addSubview:lbl];
+    self.lblSelectedDate = lbl;
 }
 
 - (void)layoutSubviews
@@ -79,6 +91,7 @@
         _needsAdjustingMonthPosition = NO;
         [self scrollToOffset:_scrollOffset animated:NO];
     }
+    _lblSelectedDate.frame = _collectionView.frame;
     
 }
 
@@ -176,7 +189,37 @@
 
 - (void)reloadData
 {
+    [self updateStaticLblDate];
     [_collectionView reloadData];
+    _collectionView.hidden = self.calendar.scope == FSCalendarScopeWeek;
+    [_collectionView setScrollEnabled:self.calendar.transitionCoordinator.representingScope == FSCalendarScopeMonth];
+}
+
+- (void) updateStaticLblDate {
+    if (self.calendar.scope == FSCalendarScopeWeek) {
+        FSCalendarAppearance *appearance = self.calendar.appearance;
+        _calendar.formatter.dateFormat = appearance.headerDateFormatWeekView;
+        NSDate *date = self.calendar.selectedDate;
+        _lblSelectedDate.text = [_calendar.formatter stringFromDate:date];
+        _lblSelectedDate.font = appearance.headerTitleFont;
+        _lblSelectedDate.textColor = appearance.headerTitleColor;
+        _lblSelectedDate.alpha = 1;
+        _lblSelectedDate.hidden = false;
+    } else {
+        _lblSelectedDate.hidden = true;
+    }
+}
+
+- (void) animateHeaderContentViewWithAlpha:(float) alpha withFSCalendarTransition:(FSCalendarTransition) transition {
+    _lblSelectedDate.hidden = false;
+    _collectionView.hidden = false;
+    if (transition == FSCalendarTransitionMonthToWeek) {
+        _lblSelectedDate.alpha = alpha;
+        _collectionView.alpha = 1 - alpha;
+    } else {
+        _lblSelectedDate.alpha = 1 - alpha;
+        _collectionView.alpha = alpha;
+    }
 }
 
 - (void)configureCell:(FSCalendarHeaderCell *)cell atIndexPath:(NSIndexPath *)indexPath
@@ -184,17 +227,19 @@
     FSCalendarAppearance *appearance = self.calendar.appearance;
     cell.titleLabel.font = appearance.headerTitleFont;
     cell.titleLabel.textColor = appearance.headerTitleColor;
-    _calendar.formatter.dateFormat = appearance.headerDateFormat;
     BOOL usesUpperCase = (appearance.caseOptions & 15) == FSCalendarCaseOptionsHeaderUsesUpperCase;
     NSString *text = nil;
     switch (self.calendar.transitionCoordinator.representingScope) {
         case FSCalendarScopeMonth: {
+            cell.titleLabel.hidden = false;
+            _calendar.formatter.dateFormat = appearance.headerDateFormatMonthView; //A.Tsyganov
             if (_scrollDirection == UICollectionViewScrollDirectionHorizontal) {
                 // 多出的两项需要制空
                 if ((indexPath.item == 0 || indexPath.item == [self.collectionView numberOfItemsInSection:0] - 1)) {
                     text = nil;
                 } else {
                     NSDate *date = [self.calendar.gregorian dateByAddingUnit:NSCalendarUnitMonth value:indexPath.item-1 toDate:self.calendar.minimumDate options:0];
+                    
                     text = [_calendar.formatter stringFromDate:date];
                 }
             } else {
@@ -204,13 +249,10 @@
             break;
         }
         case FSCalendarScopeWeek: {
-            if ((indexPath.item == 0 || indexPath.item == [self.collectionView numberOfItemsInSection:0] - 1)) {
-                text = nil;
-            } else {
-                NSDate *firstPage = [self.calendar.gregorian fs_middleDayOfWeek:self.calendar.minimumDate];
-                NSDate *date = [self.calendar.gregorian dateByAddingUnit:NSCalendarUnitWeekOfYear value:indexPath.item-1 toDate:firstPage options:0];
-                text = [_calendar.formatter stringFromDate:date];
-            }
+            FSCalendarAppearance *appearance = self.calendar.appearance;
+            _calendar.formatter.dateFormat = appearance.headerDateFormatWeekView;
+            NSDate *date = self.calendar.selectedDate;
+            text = [_calendar.formatter stringFromDate:date];
             break;
         }
         default: {
@@ -241,7 +283,9 @@
         UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectZero];
         titleLabel.textAlignment = NSTextAlignmentCenter;
         titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
-        titleLabel.numberOfLines = 0;
+        titleLabel.numberOfLines = 1;
+        titleLabel.minimumFontSize = 12;
+        titleLabel.adjustsFontSizeToFitWidth = YES;
         [self.contentView addSubview:titleLabel];
         self.titleLabel = titleLabel;
     }

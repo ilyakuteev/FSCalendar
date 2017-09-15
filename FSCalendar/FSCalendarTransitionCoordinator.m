@@ -53,6 +53,9 @@
 
 - (void)handleScopeGesture:(UIPanGestureRecognizer *)sender
 {
+    if (self.calendar.selectedDate == NULL && self.calendar.scope == FSCalendarScopeMonth) {
+        return;
+    }
     switch (sender.state) {
         case UIGestureRecognizerStateBegan: {
             [self scopeTransitionDidBegin:sender];
@@ -386,7 +389,6 @@
             self.calendar.calendarHeaderView.scrollDirection = self.collectionViewLayout.scrollDirection;
             self.calendar.needsAdjustingViewFrame = YES;
             [self.collectionView reloadData];
-            [self.calendar.calendarHeaderView reloadData];
             break;
         }
         case FSCalendarTransitionWeekToMonth: {
@@ -403,12 +405,14 @@
         default:
             break;
     }
+    [self.calendar.calendarHeaderView reloadData];
     self.state = FSCalendarTransitionStateIdle;
     self.transition = FSCalendarTransitionNone;
     self.calendar.contentView.clipsToBounds = NO;
     self.pendingAttributes = nil;
     [self.calendar setNeedsLayout];
     [self.calendar layoutIfNeeded];
+    
 }
 
 - (FSCalendarTransitionAttributes *)transitionAttributes
@@ -569,7 +573,9 @@
             [self.calendar fs_setVariable:attr.targetPage forKey:@"_currentPage"];
             
             self.calendar.contentView.clipsToBounds = YES;
-            
+            [UIView animateWithDuration:0.4 animations:^{
+                [self.calendar.calendarHeaderView animateHeaderContentViewWithAlpha:1 withFSCalendarTransition:FSCalendarTransitionMonthToWeek];
+            }];
             CGFloat currentAlpha = MAX(1-progress*1.1,0);
             CGFloat duration = 0.3;
             [self performAlphaAnimationFrom:currentAlpha to:0 duration:0.22 exception:attr.focusedRowNumber completion:^{
@@ -592,7 +598,9 @@
             [self.calendar willChangeValueForKey:@"scope"];
             [self.calendar fs_setUnsignedIntegerVariable:FSCalendarScopeMonth forKey:@"_scope"];
             [self.calendar didChangeValueForKey:@"scope"];
-            
+            [UIView animateWithDuration:0.4 animations:^{
+                [self.calendar.calendarHeaderView animateHeaderContentViewWithAlpha:1 withFSCalendarTransition:FSCalendarTransitionWeekToMonth];
+            }];
             [self performAlphaAnimationFrom:progress to:1 duration:0.4 exception:attr.focusedRowNumber completion:^{
                 [self performTransitionCompletionAnimated:YES];
             }];
@@ -626,7 +634,9 @@
             [self.calendar willChangeValueForKey:@"scope"];
             [self.calendar fs_setUnsignedIntegerVariable:FSCalendarScopeMonth forKey:@"_scope"];
             [self.calendar didChangeValueForKey:@"scope"];
-            
+            [UIView animateWithDuration:0.4 animations:^{
+                [self.calendar.calendarHeaderView animateHeaderContentViewWithAlpha:0 withFSCalendarTransition:FSCalendarTransitionMonthToWeek];
+            }];
             [self performAlphaAnimationFrom:MAX(1-progress*1.1,0) to:1 duration:0.3 exception:self.pendingAttributes.focusedRowNumber completion:^{
                 [self.calendar.visibleCells enumerateObjectsUsingBlock:^(__kindof UICollectionViewCell * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                     obj.contentView.layer.opacity = 1;
@@ -635,7 +645,6 @@
                 self.pendingAttributes = nil;
                 self.state = FSCalendarTransitionStateIdle;
             }];
-            
             if (self.calendar.delegate && ([self.calendar.delegate respondsToSelector:@selector(calendar:boundingRectWillChange:animated:)] || [self.calendar.delegate respondsToSelector:@selector(calendarCurrentScopeWillChange:animated:)])) {
                 [UIView beginAnimations:@"delegateTranslation" context:"translation"];
                 [UIView setAnimationsEnabled:YES];
@@ -652,7 +661,9 @@
             [self.calendar willChangeValueForKey:@"scope"];
             [self.calendar fs_setUnsignedIntegerVariable:FSCalendarScopeWeek forKey:@"_scope"];
             [self.calendar didChangeValueForKey:@"scope"];
-            
+            [UIView animateWithDuration:0.4 animations:^{
+                [self.calendar.calendarHeaderView animateHeaderContentViewWithAlpha:0 withFSCalendarTransition:FSCalendarTransitionWeekToMonth];
+            }];
             [self performAlphaAnimationFrom:progress to:0 duration:0.3 exception:self.pendingAttributes.focusedRowNumber completion:^{
                 [self.calendar fs_setVariable:self.pendingAttributes.sourcePage forKey:@"_currentPage"];
                 [self performTransitionCompletion:FSCalendarTransitionMonthToWeek animated:YES];
@@ -693,6 +704,7 @@
             }
         }
     }];
+
     if (completion) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(duration * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             completion();
@@ -714,6 +726,7 @@
             }
         }
     }];
+    [self.calendar.calendarHeaderView animateHeaderContentViewWithAlpha:progress withFSCalendarTransition:self.transition];
 }
 
 - (void)performPathAnimationWithProgress:(CGFloat)progress

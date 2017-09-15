@@ -10,12 +10,9 @@
 #import "FSCalendarCollectionView.h"
 #import "FSCalendarCollectionViewLayout.h"
 #import "FSCalendarScopeHandle.h"
+#import "FSCalendarTransition.h"
 
-typedef NS_ENUM(NSUInteger, FSCalendarTransition) {
-    FSCalendarTransitionNone,
-    FSCalendarTransitionMonthToWeek,
-    FSCalendarTransitionWeekToMonth
-};
+
 typedef NS_ENUM(NSUInteger, FSCalendarTransitionState) {
     FSCalendarTransitionStateIdle,
     FSCalendarTransitionStateChanging,

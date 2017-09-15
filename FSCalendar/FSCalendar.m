@@ -319,7 +319,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
             _contentView.frame = self.bounds;
         }
 
-        CGFloat headerHeight = 0;self.preferredHeaderHeight;
+        CGFloat headerHeight = self.preferredHeaderHeight;
         CGFloat weekdayHeight = self.preferredWeekdayHeight;
         CGFloat rowHeight = self.preferredRowHeight;
         CGFloat padding = 5;
@@ -542,6 +542,7 @@ typedef NS_ENUM(NSUInteger, FSCalendarOrientation) {
     [self enqueueSelectedDate:selectedDate];
     [self.delegateProxy calendar:self didSelectDate:selectedDate atMonthPosition:monthPosition];
     [self selectCounterpartDate:selectedDate];
+    [self.calendarHeaderView reloadData];
 }
 
 - (BOOL)collectionView:(UICollectionView *)collectionView shouldDeselectItemAtIndexPath:(NSIndexPath *)indexPath

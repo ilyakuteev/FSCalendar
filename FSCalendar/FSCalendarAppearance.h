@@ -105,9 +105,14 @@ typedef NS_OPTIONS(NSUInteger, FSCalendarCaseOptions) {
 @property (strong, nonatomic) UIColor  *headerTitleColor;
 
 /**
- * The date format of the month header.
+ * The date format of the top header in month scope.
  */
-@property (strong, nonatomic) NSString *headerDateFormat;
+@property (strong, nonatomic) NSString *headerDateFormatMonthView;
+
+/**
+ * The date format of the top header in month scope.
+ */
+@property (strong, nonatomic) NSString *headerDateFormatWeekView;
 
 /**
  * The alpha value of month label staying on the fringes.

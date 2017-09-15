@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "FSCalendarTransition.h"
 
 @class FSCalendar, FSCalendarAppearance, FSCalendarHeaderLayout, FSCalendarCollectionView;
 
@@ -15,6 +15,7 @@
 
 @property (weak, nonatomic) FSCalendarCollectionView *collectionView;
 @property (weak, nonatomic) FSCalendarHeaderLayout *collectionViewLayout;
+@property (strong, nonatomic) UILabel *lblSelectedDate;
 @property (weak, nonatomic) FSCalendar *calendar;
 
 @property (assign, nonatomic) CGFloat scrollOffset;
@@ -26,7 +27,7 @@
 - (void)setScrollOffset:(CGFloat)scrollOffset animated:(BOOL)animated;
 - (void)reloadData;
 - (void)configureAppearance;
-
+- (void) animateHeaderContentViewWithAlpha:(float) alpha withFSCalendarTransition:(FSCalendarTransition) transition;
 @end
 
 
